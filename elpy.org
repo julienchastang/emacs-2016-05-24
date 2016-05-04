@@ -1,0 +1,236 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t c:nil
+#+OPTIONS: creator:nil d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t
+#+OPTIONS: num:t p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t timestamp:t
+#+OPTIONS: title:t toc:t todo:t |:t
+#+TITLE: Elpy, the Emacs Python Development Environment
+#+DATE: <2016-05-24 Tue>
+#+AUTHOR: Julien Chastang
+#+EMAIL: julien.c.chastang@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 24.5.1 (Org mode 8.3.4)
+
+* Org Export Set up (Internal Only)                                :noexport:
+
+# org-mode stuff. Don't want confirmation for babel exec, nor should babel block be evaluated during export.
+
+#+BEGIN_SRC emacs-lisp :results silent :exports none 
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-babel-evaluate nil)
+#+END_SRC
+
+* Elpy, the Emacs Python Development Environment
+** What is Elpy?
+
+- A collection of Python resources for emacs maintained by Jorgen Schäfer
+- A curated list of Python related modes
+- The elpy package manager
+- Elpy Mode with various Python related goodies
+- Interacts w. Python via RPC, the inferior process in emacs parlance
+
+** Python Prerequisites
+
+You'll also need to install quite a few Python resources on whatever environment is hosting your emacs installation.
+
+|--------------------+---------------------------------------------------+---------|
+| Package            | Description                                        | pkg mgr |
+|--------------------+---------------------------------------------------+---------|
+| Python             | The Python Programming language (preferably >= 3) | conda   |
+| Interactive Python | Python REPL                                       | conda   |
+| Virtualenv         | Tool to create isolated environments              |         |
+| Jedi               | Static analysis tool                              | conda   |
+| Rope               | Refactoring library                               | conda   |
+| Importmagic        | Automagically add, remove and manage imports      | pip     |
+| Autopep8           | Code formatting tool                              | pip     |
+| Yapf               | Code formatting tool                              | pip     |
+| flake8             | Syntax checker that wraps PyFlakes and pep8       | conda   |
+|--------------------+---------------------------------------------------+---------|
+
+Need to install the via [[https://www.continuum.io/downloads][conda]] and [[https://pypi.python.org/pypi/pip/][pip]].
+
+** Obtaining Elpy
+
+You'll first want to add the elpy package manager.
+
+#+BEGIN_SRC emacs-lisp :results none
+  (require 'package)
+  (add-to-list 'package-archives
+               '("elpy" . "https://jorgenschaefer.github.io/packages/"))
+  (package-refresh-contents)
+#+END_SRC
+
+Search for and download ~elpy~ via the package manager, ~M-x package-list-packages~.
+
+#+BEGIN_SRC emacs-lisp :results verbatim 
+  (package-initialize)
+  ;; will enable Elpy in all future Python buffers
+  (elpy-enable)
+#+END_SRC
+
+#+RESULTS:
+: (elpy-rpc--disconnect)
+
+You can verify the Python inferior process is working with ~M-x list-process~
+
+** Behind the Scenes 
+Installing ~elpy~ will implicitly grab:
+
+- ~yasnippet~
+- ~pyvenv~
+- ~company~
+- ~highlight-indentation~
+- ~find-file-in-project~
+
+** Activating IPython
+
+Get iPython going (instead of generic Python) with ~M-x elpy-use-ipython~
+
+** What Modes are Active in Python Buffers
+
+- ~python~
+- ~eldoc~
+- ~flymake~
+- ~yasnippet~
+- ~pyvenv~
+- ~company~
+- ~highlight-indentation~
+
+Run ~M-x describe-mode~ for a  complete explanation.
+
+[[file:queens.py][We will be working with this example Python file]]
+
+** Python Mode
+
+Major mode for editing Python files.
+
+Actually does not do much because most keys are shadowed by ~elpy~.
+
+|---------+---------------------------|
+| key     | binding                   |
+|---------+---------------------------|
+| C-c C-j | imenu                     |
+| C-c C-l | python-shell-send-file    |
+| C-c <   | python-indent-shift-left  |
+| C-c >   | python-indent-shift-right |
+|---------+---------------------------|
+
+** Elpy Mode
+
+Minor mode in Python buffers for the Emacs Lisp Python Environment.
+
+This mode fully supports virtualenvs. Once you switch a virtualenv using M-x
+pyvenv-workon, you can use M-x elpy-rpc-restart to make the elpy Python process
+use your virtualenv.
+
+** Elpy Navigation
+
+|--------------+-----------------------------------|
+| key          | binding                           |
+|--------------+-----------------------------------|
+| <C-S-return> | elpy-open-and-indent-line-above   |
+| <C-down>     | elpy-nav-forward-block            |
+| <C-left>     | elpy-nav-backward-indent          |
+| <C-return>   | elpy-shell-send-current-statement |
+| <C-right>    | elpy-nav-forward-indent           |
+| <C-up>       | elpy-nav-backward-block           |
+| <M-down>     | elpy-nav-move-line-or-region-down |
+| <M-left>     | elpy-nav-indent-shift-left        |
+| <M-right>    | elpy-nav-indent-shift-right       |
+| <M-up>       | elpy-nav-move-line-or-region-up   |
+| <S-return>   | elpy-open-and-indent-line-below   |
+|--------------+-----------------------------------|
+
+** More Elpy Key Bindings
+
+|-----------+---------------------------------------|
+| key       | binding                               |
+|-----------+---------------------------------------|
+| M-.       | elpy-goto-definition                  |
+| C-c C-b   | elpy-nav-expand-to-indentation        |
+| C-c C-c   | elpy-shell-send-region-or-buffer      |
+| C-c C-d   | elpy-doc                              |
+| C-c C-e   | elpy-multiedit-python-symbol-at-point |
+| C-c C-n   | elpy-flymake-next-error               |
+| C-c C-p   | elpy-flymake-previous-error           |
+| C-c C-o   | elpy-occur-definitions                |
+| C-c C-r   | Prefix Command                        |
+| C-c C-s   | elpy-rgrep-symbol                     |
+| C-c C-t   | elpy-test                             |
+| C-c C-v   | elpy-check                            |
+| C-c C-z   | elpy-shell-switch-to-shell            |
+| C-c C-r f | elpy-format-code                      |
+| C-c C-r i | elpy-importmagic-fixup                |
+| C-c C-r r | elpy-refactor                         |
+|-----------+---------------------------------------|
+
+** Elpy More
+
+More ~elpy~ commands 
+
+|--------------------------------------+---------------------------------------|
+| elpy-autopep8-fix-code               | elpy-check                            |
+| elpy-company-backend                 | elpy-config                           |
+| elpy-disable                         | elpy-doc                              |
+| elpy-enable                          | elpy-find-file                        |
+| elpy-flymake-next-error              | elpy-flymake-previous-error           |
+| elpy-flymake-show-error              | elpy-format-code                      |
+| elpy-goto-definition                 | elpy-goto-definition-other-window     |
+| elpy-importmagic-add-import          | elpy-importmagic-fixup                |
+| elpy-menu                            | elpy-mode                             |
+| elpy-modules-remove-modeline-lighter | elpy-multiedit                        |
+| elpy-multiedit-add-overlay           | elpy-multiedit-python-symbol-at-point |
+| elpy-multiedit-stop                  | elpy-nav-backward-block               |
+| elpy-nav-backward-indent             | elpy-nav-expand-to-indentation        |
+| elpy-nav-forward-block               | elpy-nav-forward-indent               |
+| elpy-nav-indent-shift-left           | elpy-nav-indent-shift-right           |
+| elpy-nav-move-line-or-region-down    | elpy-nav-move-line-or-region-up       |
+| elpy-news                            | elpy-occur-definitions                |
+| elpy-open-and-indent-line-above      | elpy-open-and-indent-line-below       |
+| elpy-refactor                        | elpy-refactor-commit                  |
+| elpy-refactor-mode                   | elpy-refactor-options                 |
+| elpy-rgrep-symbol                    | elpy-rpc-restart                      |
+| elpy-set-project-root                | elpy-set-project-variable             |
+| elpy-set-test-runner                 | elpy-shell-send-current-statement     |
+| elpy-shell-send-region-or-buffer     | elpy-shell-switch-to-buffer           |
+| elpy-shell-switch-to-shell           | elpy-test                             |
+| elpy-test-discover-runner            | elpy-test-django-runner               |
+| elpy-test-nose-runner                | elpy-test-pytest-runner               |
+| elpy-test-trial-runner               | elpy-use-cpython                      |
+| elpy-use-ipython                     | elpy-version                          |
+| elpy-yapf-fix-code                   |                                       |
+|--------------------------------------+---------------------------------------|
+  
+** Eldoc Mode
+
+Display (in the echo area) the argument list of the function you are referencing in your program.
+
+** Flymake
+
+On-the-fly syntax checking tool. In elpy it works with flake8.
+
+** Yansippet
+
+A templating system for emacs. elpy has some yasnippets for Python
+
+Call yas-insert-snippet (use ~M-x yas-insert-snippet~ or its keybinding ~C-c & C-s~).
+
+** Company
+
+Extensible inline text completion mechanism
+
+** Pyvenv
+
+Python virtual environment support
+
+** Elpy configuration
+
+~M-x elpy-config~ gives you information on your current Elpy configuration. It also provides with an Emacs Easy configuration interface.
+
+** Virtual Envs
+
+elpy support Python virtual environments
+
+** Conflict with ob-ipython
+
+https://github.com/gregsexton/ob-ipython/issues/60
